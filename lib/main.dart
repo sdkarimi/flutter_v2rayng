@@ -1,5 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_v2/theme.dart';
+import 'package:flutter_v2/ui/Home.dart';
 import 'package:flutter_v2ray/flutter_v2ray.dart';
 
 void main() {
@@ -12,20 +15,37 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter V2Ray',
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
+        title: 'Flutter V2Ray',
+        theme: ThemeData(
+          useMaterial3: false,
+          appBarTheme: const AppBarTheme(
+
+            foregroundColor: DarkTheme.foregroundColor,
+            color: DarkTheme.appBarTheme,
+
+          ),
+
+          // brightness: Brightness.dark,
+          inputDecorationTheme: const InputDecorationTheme(
+            border: OutlineInputBorder(),
+          ),
+          // colorScheme: ColorScheme.dark(
+          //     brightness: Brightness.dark,
+          //
+          //             // onBackground: Colors.white,
+          //   // onSecondary: Colors.white
+          // )
         ),
-      ),
-      home: const Scaffold(
-        body: HomePage(),
-      ),
-    );
+        debugShowCheckedModeBanner: false,
+        home: Directionality(
+            
+            textDirection: TextDirection.rtl,
+            child: const HomeScreen()));
   }
 }
+
+
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -46,18 +66,19 @@ class _HomePageState extends State<HomePage> {
   final bypassSubnetController = TextEditingController();
   List<String> bypassSubnets = [];
   String? coreVersion;
-
+  bool isPlaying = false;
   String remark = "Default Remark";
 
-  void connect() async {
-
+   connect() async {
     if (await flutterV2ray.requestPermission()) {
-      flutterV2ray.startV2Ray(
-        remark: remark,
-        config: config.text,
-        proxyOnly: proxyOnly,
-        bypassSubnets: bypassSubnets,
-      );
+
+        final a=flutterV2ray.startV2Ray(
+          remark: remark,
+          config: config.text,
+          proxyOnly: proxyOnly,
+          bypassSubnets: bypassSubnets,
+        );
+
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -66,6 +87,7 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       }
+
     }
   }
 
@@ -177,102 +199,157 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 5),
-            const Text(
-              'V2Ray Config (json):',
-              style: TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 5),
-            TextFormField(
-              controller: config,
-              maxLines: 10,
-              minLines: 10,
-            ),
-            const SizedBox(height: 10),
-            ValueListenableBuilder(
-              valueListenable: v2rayStatus,
-              builder: (context, value, child) {
-                return Column(
-                  children: [
-                    Text(value.state),
-                    const SizedBox(height: 10),
-                    Text(value.duration),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('Speed:'),
-                        const SizedBox(width: 10),
-                        Text(value.uploadSpeed),
-                        const Text('↑'),
-                        const SizedBox(width: 10),
-                        Text(value.downloadSpeed),
-                        const Text('↓'),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('Traffic:'),
-                        const SizedBox(width: 10),
-                        Text(value.upload),
-                        const Text('↑'),
-                        const SizedBox(width: 10),
-                        Text(value.download),
-                        const Text('↓'),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text('Core Version: $coreVersion'),
-                  ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter V2Ray'),
+        actions: [
+          PopupMenuButton<String>(
+            itemBuilder: (BuildContext context) {
+              return {'Import from v2ray share link (clipboard)'}
+                  .map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
                 );
-              },
+              }).toList();
+            },
+            onSelected: (String choice) {
+              if (choice == 'Import from v2ray share link (clipboard)') {
+                importConfig();
+              } else {
+                print('You selected: $choice');
+              }
+            },
+          ),
+        ],
+      ),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(12)),
+        child: IconButton(
+            icon: Icon(
+              isPlaying ? Icons.stop_outlined : Icons.play_arrow_outlined,
+              color: Colors.black,
             ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Wrap(
-                spacing: 5,
-                runSpacing: 5,
-                children: [
-                  ElevatedButton(
-                    onPressed: connect,
-                    child: const Text('Connect'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => flutterV2ray.stopV2Ray(),
-                    child: const Text('Disconnect'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => setState(() => proxyOnly = !proxyOnly),
-                    child: Text(proxyOnly ? 'Proxy Only' : 'VPN Mode'),
-                  ),
-                  ElevatedButton(
-                    onPressed: importConfig,
-                    child: const Text(
-                      'Import from v2ray share link (clipboard)',
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: delay,
-                    child: const Text('Server Delay'),
-                  ),
-                  ElevatedButton(
-                    onPressed: bypassSubnet,
-                    child: const Text('Bypass Subnet'),
-                  ),
-                ],
+            // متغیر برای ذخیره وضعیت اتصال
+
+            onPressed: () {
+              // connect();
+              // while(true){
+              //   Future.delayed(Duration(milliseconds: 500));
+              //   final con=flutterV2ray.getConnectedServerDelay();
+              //   con.then((value) {
+              //     if (value==-1){
+              //       print("dodoli");
+              //     }else{
+              //
+              //       print("kir");
+              //       ret
+              //     }
+              //
+              //   }
+              // });
+
+            }
+            ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 5),
+              const Text(
+                'V2Ray Config (json):',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 5),
+              TextFormField(
+                controller: config,
+                maxLines: 10,
+                minLines: 10,
+              ),
+              const SizedBox(height: 10),
+              ValueListenableBuilder(
+                valueListenable: v2rayStatus,
+                builder: (context, value, child) {
+                  return Column(
+                    children: [
+                      Text(value.state),
+                      const SizedBox(height: 10),
+                      Text(value.duration),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('Speed:'),
+                          const SizedBox(width: 10),
+                          Text(value.uploadSpeed),
+                          const Text('↑'),
+                          const SizedBox(width: 10),
+                          Text(value.downloadSpeed),
+                          const Text('↓'),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('Traffic:'),
+                          const SizedBox(width: 10),
+                          Text(value.upload),
+                          const Text('↑'),
+                          const SizedBox(width: 10),
+                          Text(value.download),
+                          const Text('↓'),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text('Core Version: $coreVersion'),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Wrap(
+                  spacing: 5,
+                  runSpacing: 5,
+                  children: [
+                    ElevatedButton(
+                      onPressed: connect,
+                      child: const Text('Connect'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => flutterV2ray.stopV2Ray(),
+                      child: const Text('Disconnect'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => setState(() => proxyOnly = !proxyOnly),
+                      child: Text(proxyOnly ? 'Proxy Only' : 'VPN Mode'),
+                    ),
+                    ElevatedButton(
+                      onPressed: importConfig,
+                      child: const Text(
+                        'Import from v2ray share link (clipboard)',
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: delay,
+                      child: const Text('Server Delay'),
+                    ),
+                    ElevatedButton(
+                      onPressed: bypassSubnet,
+                      child: const Text('Bypass Subnet'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
