@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_v2y/common/data.dart';
+import 'package:flutter_v2y/common/utils.dart';
+import 'package:flutter_v2y/ui/splash/splash.dart';
 import 'package:flutter_v2ray/flutter_v2ray.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-void main() {
+
+void main() async{
+  await Hive.initFlutter();
+  Hive.registerAdapter(ServerAdapter());
+  // await Hive.deleteBoxFromDisk(serverBoxName);
+  await Hive.openBox<Server>(serverBoxName);
   runApp(const MyApp());
 }
 
@@ -20,8 +29,8 @@ class MyApp extends StatelessWidget {
           border: OutlineInputBorder(),
         ),
       ),
-      home: const Scaffold(
-        body: HomePage(),
+      home:  Scaffold(
+        body: SplashScreen(),
       ),
     );
   }
@@ -102,6 +111,7 @@ class _HomePageState extends State<HomePage> {
 
   void delay() async {
     late int delay;
+    print( config.text);
     if (v2rayStatus.value.state == 'CONNECTED') {
       delay = await flutterV2ray.getConnectedServerDelay();
     } else {
