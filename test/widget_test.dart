@@ -1,30 +1,64 @@
-// This is a basic Flutter widget test.
+
+// class _HomeScreenState extends State<HomeScreen> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return SafeArea(
+//       child: Scaffold(
+//         appBar: AppBar(
+//           title: const Center(child: Text("vpn Boriya")),
+//           actions: const [
+//             Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: Icon(Icons.menu_rounded),
+//             )
+//           ],
+//         ),
+//         body: Container(
+//           width: MediaQuery.of(context).size.width,
+//           decoration: BoxDecoration(
 //
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-
-import 'package:flutter_v2/main.dart';
-
-void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-  });
-}
+//             gradient: LinearGradient(
+//               begin: Alignment.bottomCenter,
+//               end: Alignment.topCenter,
+//               colors: [
+//                Color(0xff37474F),
+//                 Color(0xff455A64),
+//                 Color(0xff546E7A),
+//                 Color(0xff607D8B),
+//               ],
+//             ),
+//           ),
+//           child: Column(
+//             children: [
+//               Container(
+//                 width: 200,
+//                 height: 200,
+//                 decoration: BoxDecoration(
+//                   shape: BoxShape.circle,
+//                   gradient: LinearGradient(
+//                     begin: Alignment.bottomCenter,
+//                     end: Alignment.topCenter,
+//                     colors: [
+//                       Color(0xffFF6F00),
+//                       Color(0xffFF8F00),
+//                       Color(0xffFFA000),
+//                     ],
+//                   ),
+//                 ),
+//                 child: Container(
+//                   margin: const EdgeInsets.all(10),
+//                   decoration: BoxDecoration(
+//                     color: DarkTheme.backgroundColor,
+//                     shape: BoxShape.circle,
+//                   ),
+//                   padding: const EdgeInsets.all(5),
+//                   child: Icon(Icons.on_device_training),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
